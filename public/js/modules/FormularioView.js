@@ -54,12 +54,24 @@ export class FormularioView {
     fechar() {
         this.modal.hide();
         this.limparFormulario();
+        this.dispatchEvent('formulario:fechado');
     }
 
     preencherFormulario(agendamento) {
-        ['data', 'horarioSaida', 'horarioRetorno', 'enderecoSaida', 
-         'enderecoRetorno', 'veiculo', 'motorista'].forEach(campo => {
-            this.form.elements[campo].value = agendamento[campo] || '';
+        const campos = {
+            data: 'data',
+            horario_said: 'horarioSaida',
+            horario_retor: 'horarioRetorno',
+            endereco_sa: 'enderecoSaida',
+            endereco_re: 'enderecoRetorno',
+            veiculo: 'veiculo',
+            motorista: 'motorista'
+        };
+
+        Object.entries(campos).forEach(([chave, campo]) => {
+            if (agendamento[chave]) {
+                this.form.elements[campo].value = agendamento[chave];
+            }
         });
 
         if (agendamento.passageiros?.length > 0) {
