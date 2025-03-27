@@ -1,29 +1,26 @@
 export class CalendarioView {
-    constructor() {
-        this.grid = document.getElementById('calendario-grid');
-        this.mesAtualElement = document.getElementById('mes-atual');
+    constructor(gridId) {
+        this.grid = document.getElementById(gridId);
         
-        if (!this.grid || !this.mesAtualElement) {
-            throw new Error('Elementos do calendário não encontrados');
+        if (!this.grid) {
+            throw new Error('Elemento do calendário não encontrado');
         }
     }
 
-    atualizar(estado) {
-        this.renderizarCabecalho(estado.mes, estado.ano);
-        this.renderizarDias(estado);
-    }
+    renderizar(dataAtual, agendamentos, diaSelecionado) {
+        // Limpa o grid
+        this.grid.innerHTML = '';
 
-    renderizarCabecalho(mes, ano) {
-        this.mesAtualElement.textContent = new Date(ano, mes)
-            .toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-        
-        this.grid.querySelectorAll('.calendario-dia').forEach(dia => dia.remove());
-    }
+        // Adiciona os cabeçalhos dos dias da semana
+        ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].forEach(dia => {
+            const header = document.createElement('div');
+            header.className = 'calendario-header';
+            header.textContent = dia;
+            this.grid.appendChild(header);
+        });
 
-    renderizarDias(estado) {
-        const { mes, ano } = estado;
-        const primeiroDia = new Date(ano, mes, 1);
-        const ultimoDia = new Date(ano, mes + 1, 0);
+        const primeiroDia = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1);
+        const ultimoDia = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, 0);
         
         // Células vazias antes do primeiro dia
         for (let i = 0; i < primeiroDia.getDay(); i++) {
@@ -32,7 +29,7 @@ export class CalendarioView {
         
         // Dias do mês
         for (let dia = 1; dia <= ultimoDia.getDate(); dia++) {
-            this.adicionarDia(dia, estado);
+            this.adicionarDia(dia, dataAtual, agendamentos, diaSelecionado);
         }
         
         // Células vazias após o último dia
@@ -50,22 +47,33 @@ export class CalendarioView {
         this.grid.appendChild(diaVazio);
     }
 
-    adicionarDia(dia, estado) {
-        const { mes, ano, diaSelecionado } = estado;
+    adicionarDia(dia, dataAtual, agendamentos, diaSelecionado) {
         const diaElement = document.createElement('div');
         diaElement.className = 'calendario-dia';
         
-        const data = this.formatarData(dia, mes, ano);
+        const data = this.formatarData(
+            dia,
+            dataAtual.getMonth(),
+            dataAtual.getFullYear()
+        );
+
+        // Verifica se é hoje
         const hoje = this.formatarData(
             new Date().getDate(),
             new Date().getMonth(),
             new Date().getFullYear()
         );
+        if (data === hoje) {
+            diaElement.classList.add('hoje');
+        }
 
-        if (data === hoje) diaElement.classList.add('hoje');
-        if (data === diaSelecionado) diaElement.classList.add('selecionado');
+        // Verifica se é o dia selecionado
+        if (data === diaSelecionado) {
+            diaElement.classList.add('selecionado');
+        }
 
-        const agendamentosDoDia = estado.agendamentos.filter(a => a.data === data);
+        // Filtra agendamentos do dia
+        const agendamentosDoDia = agendamentos.filter(a => a.data === data);
         
         // Número do dia com tooltip
         const numero = document.createElement('div');
@@ -85,13 +93,11 @@ export class CalendarioView {
             diaElement.appendChild(this.criarIndicador(agendamentosDoDia.length));
         }
         
-        // Evento de clique com feedback
+        // Evento de clique
         diaElement.addEventListener('click', () => {
-            diaElement.classList.add('loading');
-            setTimeout(() => {
-                diaElement.classList.remove('loading');
-                this.selecionarDia(data);
-            }, 200);
+            document.dispatchEvent(new CustomEvent('calendario:diaSelecionado', { 
+                detail: data 
+            }));
         });
         
         this.grid.appendChild(diaElement);
@@ -113,9 +119,5 @@ export class CalendarioView {
 
     formatarData(dia, mes, ano) {
         return `${dia.toString().padStart(2, '0')}/${(mes + 1).toString().padStart(2, '0')}/${ano}`;
-    }
-
-    selecionarDia(data) {
-        document.dispatchEvent(new CustomEvent('selecionar-dia', { detail: { data } }));
     }
 } 
