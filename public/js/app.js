@@ -1,13 +1,20 @@
-import { supabase } from './supabase.js';
+import { supabase } from './utils/supabase.js';
 import { CalendarioView } from './modules/CalendarioView.js';
 import { FormularioView } from './modules/FormularioView.js';
 import { Storage } from './modules/Storage.js';
 
 class App {
     constructor() {
+        console.log('Inicializando App...');
         this.storage = new Storage(supabase);
+        console.log('Storage inicializado');
+        
         this.calendario = new CalendarioView('calendario');
+        console.log('CalendarioView inicializado');
+        
         this.formulario = new FormularioView();
+        console.log('FormularioView inicializado');
+        
         this.dataAtual = new Date();
         this.diaSelecionado = null;
         this.agendamentos = [];
@@ -17,13 +24,16 @@ class App {
     }
 
     setupEventListeners() {
+        console.log('Configurando event listeners...');
         document.addEventListener('calendario:diaSelecionado', (e) => {
+            console.log('Dia selecionado:', e.detail);
             this.diaSelecionado = e.detail;
             this.atualizarAgendamentosParaData(this.diaSelecionado);
         });
 
         document.addEventListener('formulario:salvo', async (e) => {
             try {
+                console.log('Salvando agendamento:', e.detail);
                 await this.storage.salvarAgendamento(e.detail);
                 await this.carregarAgendamentos();
                 return true;
@@ -34,22 +44,31 @@ class App {
         });
 
         document.addEventListener('formulario:fechado', () => {
+            console.log('Formulário fechado');
             this.diaSelecionado = null;
             this.calendario.renderizar(this.dataAtual, this.agendamentos, null);
         });
 
-        document.querySelector('#novo-agendamento').addEventListener('click', () => {
-            if (this.diaSelecionado) {
-                this.formulario.abrir({ data: this.diaSelecionado });
-            } else {
-                alert('Por favor, selecione uma data no calendário.');
-            }
-        });
+        const btnNovoAgendamento = document.getElementById('novo-agendamento');
+        if (btnNovoAgendamento) {
+            btnNovoAgendamento.addEventListener('click', () => {
+                if (this.diaSelecionado) {
+                    console.log('Abrindo formulário para novo agendamento');
+                    this.formulario.abrir({ data: this.diaSelecionado });
+                } else {
+                    alert('Por favor, selecione uma data no calendário.');
+                }
+            });
+        } else {
+            console.error('Botão novo-agendamento não encontrado!');
+        }
     }
 
     async carregarAgendamentos() {
         try {
+            console.log('Carregando agendamentos...');
             this.agendamentos = await this.storage.buscarAgendamentos();
+            console.log('Agendamentos carregados:', this.agendamentos);
             this.calendario.renderizar(this.dataAtual, this.agendamentos, this.diaSelecionado);
             if (this.diaSelecionado) {
                 this.atualizarAgendamentosParaData(this.diaSelecionado);
@@ -61,10 +80,16 @@ class App {
     }
 
     atualizarAgendamentosParaData(data) {
+        console.log('Atualizando agendamentos para data:', data);
         const agendamentosNoDia = this.agendamentos.filter(a => a.data === data);
+        console.log('Agendamentos encontrados:', agendamentosNoDia);
+        
         const detalhesContainer = document.getElementById('detalhes-agendamentos');
         
-        if (!detalhesContainer) return;
+        if (!detalhesContainer) {
+            console.error('Container de detalhes não encontrado!');
+            return;
+        }
 
         if (agendamentosNoDia.length === 0) {
             detalhesContainer.innerHTML = `
@@ -101,7 +126,8 @@ class App {
     }
 }
 
-// Inicializa a aplicação
+// Inicializa a aplicação quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM carregado, iniciando aplicação...');
     new App();
 }); 
