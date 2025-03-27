@@ -5,6 +5,19 @@ export class Storage {
         this.veiculos = [];
         this.motoristas = [];
         this.agendamentos = [];
+        this.carregarDadosIniciais();
+    }
+
+    async carregarDadosIniciais() {
+        try {
+            await Promise.all([
+                this.buscarVeiculos(),
+                this.buscarMotoristas()
+            ]);
+            console.log('Dados iniciais carregados com sucesso!');
+        } catch (error) {
+            console.error('Erro ao carregar dados iniciais:', error);
+        }
     }
 
     // Métodos de Veículos
@@ -16,10 +29,11 @@ export class Storage {
                 .order('modelo');
 
             if (error) throw error;
-            this.veiculos = data;
-            return data;
+            this.veiculos = data || [];
+            return this.veiculos;
         } catch (error) {
             console.error('Erro ao buscar veículos:', error);
+            this.veiculos = [];
             throw new Error('Não foi possível carregar os veículos');
         }
     }
@@ -79,10 +93,11 @@ export class Storage {
                 .order('nome');
 
             if (error) throw error;
-            this.motoristas = data;
-            return data;
+            this.motoristas = data || [];
+            return this.motoristas;
         } catch (error) {
             console.error('Erro ao buscar motoristas:', error);
+            this.motoristas = [];
             throw new Error('Não foi possível carregar os motoristas');
         }
     }

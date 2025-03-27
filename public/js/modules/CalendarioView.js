@@ -2,9 +2,11 @@ export class CalendarioView {
     constructor() {
         this.container = document.getElementById('calendario');
         this.dataSelecionada = null;
+        this.data = new Date();
         this.listeners = new Map();
         this.criarEstrutura();
         this.setupEventListeners();
+        this.renderizar();
     }
 
     criarEstrutura() {

@@ -170,12 +170,14 @@ class App {
     }
 
     getVeiculoNome(id) {
-        const veiculo = this.formulario.getVeiculos().find(v => v.id === id);
+        const veiculos = this.storage.veiculos || [];
+        const veiculo = veiculos.find(v => v.id === id);
         return veiculo ? `${veiculo.modelo} (${veiculo.placa})` : 'Não encontrado';
     }
 
     getMotoristaNome(id) {
-        const motorista = this.formulario.getMotoristas().find(m => m.id === id);
+        const motoristas = this.storage.motoristas || [];
+        const motorista = motoristas.find(m => m.id === id);
         return motorista ? motorista.nome : 'Não encontrado';
     }
 
@@ -183,7 +185,7 @@ class App {
         const toastContainer = document.querySelector('.toast-container');
         if (!toastContainer) {
             const container = document.createElement('div');
-            container.className = 'toast-container';
+            container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
             document.body.appendChild(container);
         }
 
@@ -198,17 +200,15 @@ class App {
                 <div class="toast-body">
                     ${mensagem}
                 </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         `;
 
-        document.querySelector('.toast-container').appendChild(toast);
+        const container = document.querySelector('.toast-container');
+        container.appendChild(toast);
+
         const bsToast = new bootstrap.Toast(toast);
         bsToast.show();
-
-        toast.addEventListener('hidden.bs.toast', () => {
-            toast.remove();
-        });
     }
 }
 
