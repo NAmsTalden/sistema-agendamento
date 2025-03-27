@@ -75,7 +75,7 @@ body {
     background-color: white;
     box-shadow: var(--shadow-sm);
     border-bottom: 1px solid var(--gray-200);
-    padding: 0.5rem 0;
+    padding: 1rem 0;
     margin-bottom: 2rem;
 }
 
@@ -84,15 +84,7 @@ body {
 }
 
 .navbar-brand {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
     padding: 0;
-}
-
-.header-logo {
-    height: 3.5rem;
-    width: auto;
 }
 
 .brand-text {
@@ -102,7 +94,7 @@ body {
 }
 
 .brand-text h1 {
-    font-size: 1.75rem;
+    font-size: 2rem;
     font-weight: 700;
     color: var(--primary);
     margin: 0;
@@ -110,14 +102,14 @@ body {
 }
 
 .brand-text .lead {
-    font-size: 0.875rem;
+    font-size: 1rem;
     color: var(--gray-600);
     margin: 0;
     line-height: 1.2;
 }
 
 .brand-text .text-muted {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     margin: 0;
     line-height: 1;
 }
@@ -154,7 +146,7 @@ body {
 /* Container Principal */
 main {
     flex: 1;
-    padding: 2rem 1rem;
+    padding: 2rem 0;
 }
 
 .app-container {
@@ -411,30 +403,45 @@ main {
     padding: 0.75rem;
 }
 
+/* Detalhes dos Agendamentos */
+#detalhes-agendamentos {
+    background-color: white;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    height: 100%;
+    min-height: 300px;
+}
+
+#detalhes-agendamentos .list-group {
+    border-radius: var(--border-radius-md);
+}
+
+#detalhes-agendamentos .list-group-item {
+    border: none;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 1rem;
+}
+
+#detalhes-agendamentos .list-group-item:last-child {
+    border-bottom: none;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
     .app-header {
         margin-bottom: 1rem;
     }
 
-    .navbar-brand {
-        gap: 0.5rem;
-    }
-
-    .header-logo {
-        height: 2.5rem;
-    }
-
     .brand-text h1 {
-        font-size: 1.25rem;
+        font-size: 1.5rem;
     }
 
     .brand-text .lead {
-        font-size: 0.75rem;
+        font-size: 0.875rem;
     }
 
     .brand-text .text-muted {
-        display: none;
+        font-size: 0.75rem;
     }
 
     .app-container {
@@ -458,6 +465,11 @@ main {
 
     .modal-body {
         padding: 1rem;
+    }
+
+    #detalhes-agendamentos {
+        margin-top: 1.5rem;
+        min-height: 200px;
     }
 }
 

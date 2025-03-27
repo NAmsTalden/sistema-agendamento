@@ -11,9 +11,8 @@
 <body>
     <header class="app-header">
         <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid">
+            <div class="container">
                 <div class="navbar-brand">
-                    <img src="https://www.piracicaba.sp.gov.br/wp-content/uploads/2021/06/brasao-piracicaba.png" alt="Brasão de Piracicaba" class="header-logo">
                     <div class="brand-text">
                         <h1>SISVEI</h1>
                         <p class="lead">Sistema de Agendamento de Veículos Integrado</p>
@@ -45,7 +44,24 @@
 
     <main class="container">
         <div class="app-container">
-            <div id="calendario"></div>
+            <div class="row">
+                <div class="col-md-8">
+                    <div id="calendario"></div>
+                </div>
+                <div class="col-md-4">
+                    <div id="detalhes-agendamentos" class="mt-4 mt-md-0">
+                        <div class="text-center text-muted p-4">
+                            <i class="bi bi-calendar-x fs-1"></i>
+                            <p class="mt-2">Selecione um dia para ver os agendamentos.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-end mt-4">
+                <button id="novo-agendamento" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> Novo Agendamento
+                </button>
+            </div>
         </div>
     </main>
 
