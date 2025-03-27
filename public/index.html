@@ -29,16 +29,13 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#"><i class="bi bi-calendar-week"></i> Agenda</a>
+                            <a class="nav-link active" href="#agenda"><i class="bi bi-calendar-week"></i> Agenda</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#"><i class="bi bi-car-front"></i> Veículos</a>
+                            <a class="nav-link" href="#veiculos"><i class="bi bi-car-front"></i> Veículos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#"><i class="bi bi-people"></i> Motoristas</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#"><i class="bi bi-gear"></i> Configurações</a>
+                            <a class="nav-link" href="#motoristas"><i class="bi bi-people"></i> Motoristas</a>
                         </li>
                     </ul>
                 </div>
@@ -47,24 +44,79 @@
     </header>
 
     <main class="container">
-        <div class="app-container">
-            <div class="row">
-                <div class="col-md-8">
-                    <div id="calendario"></div>
-                </div>
-                <div class="col-md-4">
-                    <div id="detalhes-agendamentos" class="mt-4 mt-md-0">
-                        <div class="text-center text-muted p-4">
-                            <i class="bi bi-calendar-x fs-1"></i>
-                            <p class="mt-2">Selecione um dia para ver os agendamentos.</p>
+        <!-- View da Agenda -->
+        <div id="agenda" class="view">
+            <div class="app-container">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div id="calendario"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <div id="detalhes-agendamentos" class="mt-4 mt-md-0">
+                            <div class="text-center text-muted p-4">
+                                <i class="bi bi-calendar-x fs-1"></i>
+                                <p class="mt-2">Selecione um dia para ver os agendamentos.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div class="text-end mt-4">
+                    <button id="novo-agendamento" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i> Novo Agendamento
+                    </button>
+                </div>
             </div>
-            <div class="text-end mt-4">
-                <button id="novo-agendamento" class="btn btn-primary">
-                    <i class="bi bi-plus-lg"></i> Novo Agendamento
+        </div>
+
+        <!-- View de Veículos -->
+        <div id="veiculos" class="view d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Veículos</h2>
+                <button class="btn btn-primary" onclick="app.veiculos.abrir()">
+                    <i class="bi bi-plus-lg"></i> Novo Veículo
                 </button>
+            </div>
+            <div class="table-responsive">
+                <table id="tabela-veiculos" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Modelo</th>
+                            <th>Placa</th>
+                            <th>Capacidade</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Preenchido dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- View de Motoristas -->
+        <div id="motoristas" class="view d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Motoristas</h2>
+                <button class="btn btn-primary" onclick="app.motoristas.abrir()">
+                    <i class="bi bi-plus-lg"></i> Novo Motorista
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table id="tabela-motoristas" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CNH</th>
+                            <th>Telefone</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Preenchido dinamicamente -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>
@@ -111,9 +163,6 @@
                                 <label class="form-label">Veículo</label>
                                 <select class="form-select" name="veiculo" required>
                                     <option value="">Selecione...</option>
-                                    <option value="1">Fiat Uno - ABC-1234</option>
-                                    <option value="2">VW Gol - DEF-5678</option>
-                                    <option value="3">Ford Ka - GHI-9012</option>
                                 </select>
                                 <div class="invalid-feedback">Selecione um veículo</div>
                             </div>
@@ -121,9 +170,6 @@
                                 <label class="form-label">Motorista</label>
                                 <select class="form-select" name="motorista" required>
                                     <option value="">Selecione...</option>
-                                    <option value="1">João Silva</option>
-                                    <option value="2">Maria Santos</option>
-                                    <option value="3">Pedro Oliveira</option>
                                 </select>
                                 <div class="invalid-feedback">Selecione um motorista</div>
                             </div>
@@ -151,6 +197,104 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" form="form-agendamento" class="btn btn-primary">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Veículo -->
+    <div class="modal fade" id="modal-veiculo" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Veículo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-veiculo" class="needs-validation" novalidate>
+                        <input type="hidden" name="id">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Modelo</label>
+                            <input type="text" class="form-control" name="modelo" required>
+                            <div class="invalid-feedback">Informe o modelo do veículo</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Placa</label>
+                            <input type="text" class="form-control" name="placa" required pattern="[A-Z]{3}[0-9][0-9A-Z][0-9]{2}">
+                            <div class="invalid-feedback">Informe a placa no formato ABC1234 ou ABC1D23</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Capacidade de Passageiros</label>
+                            <input type="number" class="form-control" name="capacidade" required min="1" max="50">
+                            <div class="invalid-feedback">Informe a capacidade (entre 1 e 50)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status" required>
+                                <option value="">Selecione...</option>
+                                <option value="disponivel">Disponível</option>
+                                <option value="indisponivel">Indisponível</option>
+                            </select>
+                            <div class="invalid-feedback">Selecione o status</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" form="form-veiculo" class="btn btn-primary">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Motorista -->
+    <div class="modal fade" id="modal-motorista" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Motorista</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-motorista" class="needs-validation" novalidate>
+                        <input type="hidden" name="id">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Nome</label>
+                            <input type="text" class="form-control" name="nome" required>
+                            <div class="invalid-feedback">Informe o nome do motorista</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">CNH</label>
+                            <input type="text" class="form-control" name="cnh" required pattern="[0-9]{11}">
+                            <div class="invalid-feedback">Informe a CNH (11 números)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Telefone</label>
+                            <input type="tel" class="form-control" name="telefone" required pattern="\([0-9]{2}\) [0-9]{5}-[0-9]{4}">
+                            <div class="invalid-feedback">Informe o telefone no formato (99) 99999-9999</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status" required>
+                                <option value="">Selecione...</option>
+                                <option value="disponivel">Disponível</option>
+                                <option value="indisponivel">Indisponível</option>
+                            </select>
+                            <div class="invalid-feedback">Selecione o status</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" form="form-motorista" class="btn btn-primary">Salvar</button>
                 </div>
             </div>
         </div>

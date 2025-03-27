@@ -1,99 +1,223 @@
+import { supabase } from '../utils/supabase.js';
+
 export class Storage {
-    constructor(supabase) {
-        this.supabase = supabase;
-        console.log('Storage inicializado com Supabase');
+    constructor() {
+        this.veiculos = [];
+        this.motoristas = [];
+        this.agendamentos = [];
     }
 
-    async salvarAgendamento(dados) {
+    // Métodos de Veículos
+    async buscarVeiculos() {
         try {
-            console.log('Salvando agendamento:', dados);
-            const { data, error } = await this.supabase
-                .from('agendamentos')
-                .insert([{
-                    data: dados.data,
-                    horario_said: dados.horarioSaida,
-                    horario_retor: dados.horarioRetorno,
-                    endereco_sa: dados.enderecoSaida,
-                    endereco_re: dados.enderecoRetorno,
-                    veiculo: dados.veiculo,
-                    motorista: dados.motorista,
-                    passageiros: dados.passageiros
-                }])
-                .select();
+            const { data, error } = await supabase
+                .from('veiculos')
+                .select('*')
+                .order('modelo');
 
-            if (error) {
-                console.error('Erro ao salvar agendamento:', error);
-                throw error;
-            }
-
-            console.log('Agendamento salvo com sucesso:', data);
-            return data[0];
+            if (error) throw error;
+            this.veiculos = data;
+            return data;
         } catch (error) {
-            console.error('Erro ao salvar agendamento:', error);
-            throw error;
+            console.error('Erro ao buscar veículos:', error);
+            throw new Error('Não foi possível carregar os veículos');
         }
     }
 
+    async buscarVeiculoPorId(id) {
+        try {
+            const { data, error } = await supabase
+                .from('veiculos')
+                .select('*')
+                .eq('id', id)
+                .single();
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Erro ao buscar veículo:', error);
+            throw new Error('Não foi possível carregar o veículo');
+        }
+    }
+
+    async salvarVeiculo(dados) {
+        try {
+            const { data, error } = await supabase
+                .from('veiculos')
+                .upsert([dados])
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Erro ao salvar veículo:', error);
+            throw new Error('Não foi possível salvar o veículo');
+        }
+    }
+
+    async excluirVeiculo(id) {
+        try {
+            const { error } = await supabase
+                .from('veiculos')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Erro ao excluir veículo:', error);
+            throw new Error('Não foi possível excluir o veículo');
+        }
+    }
+
+    // Métodos de Motoristas
+    async buscarMotoristas() {
+        try {
+            const { data, error } = await supabase
+                .from('motoristas')
+                .select('*')
+                .order('nome');
+
+            if (error) throw error;
+            this.motoristas = data;
+            return data;
+        } catch (error) {
+            console.error('Erro ao buscar motoristas:', error);
+            throw new Error('Não foi possível carregar os motoristas');
+        }
+    }
+
+    async buscarMotoristaPorId(id) {
+        try {
+            const { data, error } = await supabase
+                .from('motoristas')
+                .select('*')
+                .eq('id', id)
+                .single();
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Erro ao buscar motorista:', error);
+            throw new Error('Não foi possível carregar o motorista');
+        }
+    }
+
+    async salvarMotorista(dados) {
+        try {
+            const { data, error } = await supabase
+                .from('motoristas')
+                .upsert([dados])
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Erro ao salvar motorista:', error);
+            throw new Error('Não foi possível salvar o motorista');
+        }
+    }
+
+    async excluirMotorista(id) {
+        try {
+            const { error } = await supabase
+                .from('motoristas')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Erro ao excluir motorista:', error);
+            throw new Error('Não foi possível excluir o motorista');
+        }
+    }
+
+    // Métodos de Agendamentos
     async buscarAgendamentos() {
         try {
-            console.log('Buscando agendamentos...');
-            const { data, error } = await this.supabase
+            const { data, error } = await supabase
                 .from('agendamentos')
-                .select('*')
-                .order('data', { ascending: true });
+                .select(`
+                    *,
+                    veiculo:veiculos(modelo, placa),
+                    motorista:motoristas(nome)
+                `)
+                .order('data')
+                .order('horario_said');
 
-            if (error) {
-                console.error('Erro ao buscar agendamentos:', error);
-                throw error;
-            }
-
-            console.log('Agendamentos encontrados:', data);
+            if (error) throw error;
+            this.agendamentos = data;
             return data;
         } catch (error) {
             console.error('Erro ao buscar agendamentos:', error);
-            throw error;
+            throw new Error('Não foi possível carregar os agendamentos');
         }
     }
 
     async buscarAgendamentosPorData(data) {
         try {
-            console.log('Buscando agendamentos para a data:', data);
-            const { data: agendamentos, error } = await this.supabase
+            const { data: agendamentos, error } = await supabase
                 .from('agendamentos')
-                .select('*')
+                .select(`
+                    *,
+                    veiculo:veiculos(modelo, placa),
+                    motorista:motoristas(nome)
+                `)
                 .eq('data', data)
-                .order('horario_said', { ascending: true });
+                .order('horario_said');
 
-            if (error) {
-                console.error('Erro ao buscar agendamentos por data:', error);
-                throw error;
-            }
-
-            console.log('Agendamentos encontrados para a data:', agendamentos);
+            if (error) throw error;
             return agendamentos;
         } catch (error) {
-            console.error('Erro ao buscar agendamentos por data:', error);
-            throw error;
+            console.error('Erro ao buscar agendamentos:', error);
+            throw new Error('Não foi possível carregar os agendamentos');
+        }
+    }
+
+    async salvarAgendamento(dados) {
+        try {
+            // Formata os horários para HH:mm
+            dados.horario_said = dados.horario_said.substring(0, 5);
+            dados.horario_retor = dados.horario_retor.substring(0, 5);
+
+            const { data, error } = await supabase
+                .from('agendamentos')
+                .upsert([dados])
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Erro ao salvar agendamento:', error);
+            throw new Error('Não foi possível salvar o agendamento');
         }
     }
 
     async excluirAgendamento(id) {
         try {
-            console.log('Excluindo agendamento:', id);
-            const { error } = await this.supabase
+            const { error } = await supabase
                 .from('agendamentos')
                 .delete()
                 .eq('id', id);
 
-            if (error) {
-                console.error('Erro ao excluir agendamento:', error);
-                throw error;
-            }
-
-            console.log('Agendamento excluído com sucesso');
+            if (error) throw error;
         } catch (error) {
             console.error('Erro ao excluir agendamento:', error);
-            throw error;
+            throw new Error('Não foi possível excluir o agendamento');
         }
     }
+
+    // Métodos auxiliares
+    getVeiculoNome(id) {
+        const veiculo = this.veiculos.find(v => v.id === id);
+        return veiculo ? `${veiculo.modelo} - ${veiculo.placa}` : '';
+    }
+
+    getMotoristaNome(id) {
+        const motorista = this.motoristas.find(m => m.id === id);
+        return motorista ? motorista.nome : '';
+    }
+} 
 } 

@@ -45,6 +45,16 @@
     --transition-fast: 150ms ease-in-out;
     --transition-normal: 250ms ease-in-out;
     --transition-slow: 350ms ease-in-out;
+
+    /* Novas cores */
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #0dcaf0;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
 }
 
 /* Reset e Base */
@@ -58,7 +68,7 @@ body {
     font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     line-height: 1.5;
     color: var(--dark);
-    background-color: #f2f6fc;
+    background-color: var(--light-color);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -73,9 +83,7 @@ body {
 /* Header */
 .app-header {
     background-color: white;
-    box-shadow: var(--shadow-sm);
-    border-bottom: 1px solid var(--gray-200);
-    padding: 1rem 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     margin-bottom: 2rem;
 }
 
@@ -88,30 +96,23 @@ body {
 }
 
 .brand-text {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+    padding: 1rem 0;
 }
 
 .brand-text h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary);
+    font-size: 1.75rem;
     margin: 0;
-    line-height: 1;
+    color: var(--primary-color);
 }
 
 .brand-text .lead {
     font-size: 1rem;
-    color: var(--gray-600);
-    margin: 0;
-    line-height: 1.2;
+    margin: 0.25rem 0;
 }
 
 .brand-text .text-muted {
     font-size: 0.875rem;
     margin: 0;
-    line-height: 1;
 }
 
 .navbar-nav {
@@ -119,28 +120,22 @@ body {
 }
 
 .nav-link {
-    color: var(--gray-700);
-    font-weight: 500;
+    color: var(--dark-color);
     padding: 0.5rem 1rem;
-    border-radius: var(--border-radius-md);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s ease;
+    transition: color 0.2s;
 }
 
 .nav-link:hover {
-    color: var(--primary);
-    background-color: var(--primary-light);
+    color: var(--primary-color);
 }
 
 .nav-link.active {
-    color: var(--primary);
-    background-color: var(--primary-light);
+    color: var(--primary-color);
+    font-weight: 500;
 }
 
 .nav-link i {
-    font-size: 1.25rem;
+    margin-right: 0.5rem;
 }
 
 /* Container Principal */
@@ -391,8 +386,8 @@ main {
 
 .form-control:focus,
 .form-select:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 0.25rem var(--primary-light);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
 .input-group {
@@ -406,32 +401,90 @@ main {
 /* Detalhes dos Agendamentos */
 #detalhes-agendamentos {
     background-color: white;
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-sm);
-    height: 100%;
-    min-height: 300px;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-height: 200px;
 }
 
-#detalhes-agendamentos .list-group {
-    border-radius: var(--border-radius-md);
-}
-
-#detalhes-agendamentos .list-group-item {
-    border: none;
-    border-bottom: 1px solid var(--gray-200);
+.list-group-item {
+    border-left: none;
+    border-right: none;
     padding: 1rem;
 }
 
-#detalhes-agendamentos .list-group-item:last-child {
+.list-group-item:first-child {
+    border-top: none;
+}
+
+.list-group-item:last-child {
     border-bottom: none;
+}
+
+/* Tabelas */
+.table {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.table th {
+    border-top: none;
+    background-color: var(--light-color);
+    font-weight: 500;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* Status */
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-disponivel {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: var(--success-color);
+}
+
+.status-indisponivel {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--danger-color);
+}
+
+/* Botões de ação */
+.btn-action {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.btn-action + .btn-action {
+    margin-left: 0.5rem;
+}
+
+/* Toast */
+.toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1050;
+}
+
+.toast {
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
-    .app-header {
-        margin-bottom: 1rem;
-    }
-
     .brand-text h1 {
         font-size: 1.5rem;
     }
@@ -467,9 +520,12 @@ main {
         padding: 1rem;
     }
 
-    #detalhes-agendamentos {
-        margin-top: 1.5rem;
-        min-height: 200px;
+    .table-responsive {
+        margin: 0 -1rem;
+    }
+
+    .table {
+        border-radius: 0;
     }
 }
 
@@ -516,4 +572,13 @@ main {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--gray-500);
+}
+
+/* Views */
+.view {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.view.d-none {
+    display: none !important;
 } 

@@ -179,7 +179,7 @@ export class FormularioView {
 
     coletarDados() {
         const formData = new FormData(this.form);
-        return {
+        const dados = {
             data: formData.get('data'),
             horario_said: formData.get('horarioSaida'),
             horario_retor: formData.get('horarioRetorno'),
@@ -189,6 +189,34 @@ export class FormularioView {
             motorista: formData.get('motorista'),
             passageiros: formData.getAll('passageiros[]').filter(p => p.trim())
         };
+
+        // Validação dos dados
+        if (!dados.data) {
+            throw new Error('Data é obrigatória');
+        }
+
+        if (!dados.horario_said || !dados.horario_retor) {
+            throw new Error('Horários são obrigatórios');
+        }
+
+        if (!dados.endereco_sa || !dados.endereco_re) {
+            throw new Error('Endereços são obrigatórios');
+        }
+
+        if (!dados.veiculo) {
+            throw new Error('Veículo é obrigatório');
+        }
+
+        if (!dados.motorista) {
+            throw new Error('Motorista é obrigatório');
+        }
+
+        if (!dados.passageiros || dados.passageiros.length === 0) {
+            throw new Error('Pelo menos um passageiro é obrigatório');
+        }
+
+        console.log('Dados coletados:', dados);
+        return dados;
     }
 
     iniciarCarregamento() {
@@ -205,40 +233,57 @@ export class FormularioView {
     }
 
     mostrarToast(mensagem, tipo) {
-        const toastContainer = document.getElementById('toast-container') || this.criarToastContainer();
-        const toast = document.createElement('div');
-        toast.className = `toast fade-in bg-${tipo} text-white`;
-        toast.innerHTML = `
-            <div class="toast-body">
-                ${mensagem}
+        const toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+        toastContainer.style.zIndex = '1050';
+        
+        const toastElement = document.createElement('div');
+        toastElement.className = `toast align-items-center text-white bg-${tipo} border-0`;
+        toastElement.setAttribute('role', 'alert');
+        toastElement.setAttribute('aria-live', 'assertive');
+        toastElement.setAttribute('aria-atomic', 'true');
+        
+        toastElement.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${mensagem}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         `;
-        toastContainer.appendChild(toast);
-        new bootstrap.Toast(toast, { delay: 3000 }).show();
-        toast.addEventListener('hidden.bs.toast', () => toast.remove());
-    }
-
-    criarToastContainer() {
-        const container = document.createElement('div');
-        container.id = 'toast-container';
-        container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-        document.body.appendChild(container);
-        return container;
-    }
-
-    dispatchEvent(name, detail) {
-        return new Promise((resolve, reject) => {
-            const event = new CustomEvent(name, { 
-                bubbles: true,
-                detail 
-            });
-            
-            const success = document.dispatchEvent(event);
-            if (success) {
-                resolve(detail);
-            } else {
-                reject(new Error('O evento foi cancelado'));
-            }
+        
+        toastContainer.appendChild(toastElement);
+        document.body.appendChild(toastContainer);
+        
+        const toast = new bootstrap.Toast(toastElement, {
+            animation: true,
+            autohide: true,
+            delay: 3000
         });
+        
+        toast.show();
+        
+        toastElement.addEventListener('hidden.bs.toast', () => {
+            document.body.removeChild(toastContainer);
+        });
+    }
+
+    dispatchEvent(eventName, detail = null) {
+        console.log('Disparando evento:', eventName, detail);
+        try {
+            const event = new CustomEvent(eventName, { 
+                detail,
+                bubbles: true,
+                cancelable: true
+            });
+            const success = document.dispatchEvent(event);
+            if (!success) {
+                throw new Error('Evento cancelado');
+            }
+            return success;
+        } catch (error) {
+            console.error('Erro ao disparar evento:', error);
+            throw error;
+        }
     }
 } 
