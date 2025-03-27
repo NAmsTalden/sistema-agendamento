@@ -1,137 +1,170 @@
 export class CalendarioView {
-    constructor(containerId) {
-        this.container = document.getElementById(containerId);
-        this.dataAtual = new Date();
-        this.diaSelecionado = null;
-        this.agendamentos = [];
+    constructor() {
+        this.container = document.getElementById('calendario');
+        this.dataSelecionada = null;
+        this.listeners = new Map();
         this.criarEstrutura();
+        this.setupEventListeners();
     }
 
     criarEstrutura() {
+        this.container.classList.add('calendario-wrapper');
         this.container.innerHTML = `
-            <div class="calendario-wrapper">
-                <div class="calendario-nav">
-                    <button class="btn-mes-anterior">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <h2></h2>
-                    <button class="btn-mes-proximo">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
-                </div>
-                <div class="calendario">
-                    <div class="calendario-header">
-                        <div>Dom</div>
-                        <div>Seg</div>
-                        <div>Ter</div>
-                        <div>Qua</div>
-                        <div>Qui</div>
-                        <div>Sex</div>
-                        <div>Sáb</div>
-                    </div>
-                    <div class="calendario-grid"></div>
-                </div>
+            <div class="calendario-nav">
+                <button type="button" class="btn-mes-anterior">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <h2></h2>
+                <button type="button" class="btn-proximo-mes">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
             </div>
+            <div class="calendario-header">
+                <div>Dom</div>
+                <div>Seg</div>
+                <div>Ter</div>
+                <div>Qua</div>
+                <div>Qui</div>
+                <div>Sex</div>
+                <div>Sáb</div>
+            </div>
+            <div class="calendario-grid"></div>
         `;
 
+        this.titulo = this.container.querySelector('h2');
+        this.grid = this.container.querySelector('.calendario-grid');
         this.btnMesAnterior = this.container.querySelector('.btn-mes-anterior');
-        this.btnMesProximo = this.container.querySelector('.btn-mes-proximo');
-        this.tituloMes = this.container.querySelector('h2');
-        this.gridContainer = this.container.querySelector('.calendario-grid');
-
-        this.setupEventListeners();
-        this.renderizar(this.dataAtual, [], null); // Renderiza o estado inicial
+        this.btnProximoMes = this.container.querySelector('.btn-proximo-mes');
     }
 
     setupEventListeners() {
         this.btnMesAnterior.addEventListener('click', () => {
-            this.dataAtual = new Date(this.dataAtual.getFullYear(), this.dataAtual.getMonth() - 1, 1);
-            this.renderizar(this.dataAtual, this.agendamentos, this.diaSelecionado);
+            this.data.setMonth(this.data.getMonth() - 1);
+            this.renderizar();
         });
 
-        this.btnMesProximo.addEventListener('click', () => {
-            this.dataAtual = new Date(this.dataAtual.getFullYear(), this.dataAtual.getMonth() + 1, 1);
-            this.renderizar(this.dataAtual, this.agendamentos, this.diaSelecionado);
+        this.btnProximoMes.addEventListener('click', () => {
+            this.data.setMonth(this.data.getMonth() + 1);
+            this.renderizar();
         });
 
-        this.gridContainer.addEventListener('click', (e) => {
-            const dia = e.target.closest('.calendario-dia');
+        this.grid.addEventListener('click', (event) => {
+            const dia = event.target.closest('.calendario-dia');
             if (dia && !dia.classList.contains('vazio')) {
-                const data = dia.dataset.data;
-                this.diaSelecionado = data;
-                document.dispatchEvent(new CustomEvent('calendario:diaSelecionado', { detail: data }));
-                this.atualizarSelecao();
+                const dataAnterior = this.dataSelecionada;
+                this.dataSelecionada = new Date(dia.dataset.data);
+                
+                // Remove seleção anterior
+                if (dataAnterior) {
+                    const diaAnterior = this.grid.querySelector(`[data-data="${dataAnterior.toISOString().split('T')[0]}"]`);
+                    if (diaAnterior) {
+                        diaAnterior.classList.remove('selecionado');
+                    }
+                }
+                
+                // Adiciona nova seleção
+                dia.classList.add('selecionado');
+                
+                // Dispara evento de seleção
+                this.dispatchEvent('selecao', { data: this.dataSelecionada });
             }
         });
     }
 
-    renderizar(dataAtual, agendamentos, diaSelecionado) {
-        this.dataAtual = dataAtual;
-        this.agendamentos = agendamentos;
-        this.diaSelecionado = diaSelecionado;
-
-        const primeiroDiaDoMes = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1);
-        const ultimoDiaDoMes = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, 0);
-        
-        this.tituloMes.textContent = this.formatarMesAno(dataAtual);
-        let html = '';
-        
-        // Preenche os dias vazios do início do mês
-        for (let i = 0; i < primeiroDiaDoMes.getDay(); i++) {
-            html += '<div class="calendario-dia vazio"></div>';
+    addEventListener(event, callback) {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, new Set());
         }
-        
-        // Preenche os dias do mês
-        for (let dia = 1; dia <= ultimoDiaDoMes.getDate(); dia++) {
-            const data = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), dia);
-            const dataFormatada = this.formatarData(data);
-            const agendamentosNoDia = agendamentos.filter(a => a.data === dataFormatada);
-            const ehHoje = this.mesmosDias(data, new Date());
-            const selecionado = dataFormatada === diaSelecionado;
-            
-            const classes = [
-                'calendario-dia',
-                ehHoje ? 'hoje' : '',
-                selecionado ? 'selecionado' : '',
-                agendamentosNoDia.length > 0 ? 'tem-agendamento' : ''
-            ].filter(Boolean).join(' ');
-            
-            html += `
-                <div class="${classes}" data-data="${dataFormatada}">
-                    <span class="numero-dia">${dia}</span>
-                    ${agendamentosNoDia.length > 0 ? `
-                        <span class="badge">${agendamentosNoDia.length}</span>
-                    ` : ''}
-                </div>
-            `;
+        this.listeners.get(event).add(callback);
+    }
+
+    removeEventListener(event, callback) {
+        if (this.listeners.has(event)) {
+            this.listeners.get(event).delete(callback);
+        }
+    }
+
+    dispatchEvent(event, data) {
+        if (this.listeners.has(event)) {
+            this.listeners.get(event).forEach(callback => callback(data));
+        }
+    }
+
+    getDataSelecionada() {
+        return this.dataSelecionada;
+    }
+
+    renderizar(agendamentos = []) {
+        if (!this.data) {
+            this.data = new Date();
         }
 
-        // Preenche os dias vazios do final do mês
-        const diasRestantes = 42 - (primeiroDiaDoMes.getDay() + ultimoDiaDoMes.getDate()); // 42 = 6 semanas * 7 dias
+        // Atualiza título
+        const mes = this.data.toLocaleString('pt-BR', { month: 'long' });
+        const ano = this.data.getFullYear();
+        this.titulo.textContent = `${mes} de ${ano}`;
+
+        // Limpa grid
+        this.grid.innerHTML = '';
+
+        // Calcula primeiro dia do mês
+        const primeiroDia = new Date(this.data.getFullYear(), this.data.getMonth(), 1);
+        const ultimoDia = new Date(this.data.getFullYear(), this.data.getMonth() + 1, 0);
+        
+        // Adiciona dias vazios do início
+        for (let i = 0; i < primeiroDia.getDay(); i++) {
+            const div = document.createElement('div');
+            div.className = 'calendario-dia vazio';
+            this.grid.appendChild(div);
+        }
+
+        // Adiciona os dias do mês
+        const hoje = new Date();
+        for (let dia = 1; dia <= ultimoDia.getDate(); dia++) {
+            const data = new Date(this.data.getFullYear(), this.data.getMonth(), dia);
+            const div = document.createElement('div');
+            div.className = 'calendario-dia';
+            div.dataset.data = data.toISOString().split('T')[0];
+
+            // Adiciona número do dia
+            const numero = document.createElement('div');
+            numero.className = 'numero-dia';
+            numero.textContent = dia;
+            div.appendChild(numero);
+
+            // Verifica se é hoje
+            if (data.toDateString() === hoje.toDateString()) {
+                div.classList.add('hoje');
+            }
+
+            // Verifica se é o dia selecionado
+            if (this.dataSelecionada && data.toDateString() === this.dataSelecionada.toDateString()) {
+                div.classList.add('selecionado');
+            }
+
+            // Verifica se tem agendamentos
+            const agendamentosDoDia = agendamentos.filter(a => {
+                const dataAgendamento = new Date(a.data);
+                return dataAgendamento.toDateString() === data.toDateString();
+            });
+
+            if (agendamentosDoDia.length > 0) {
+                div.classList.add('tem-agendamento');
+                const badge = document.createElement('span');
+                badge.className = 'badge';
+                badge.textContent = agendamentosDoDia.length;
+                div.appendChild(badge);
+            }
+
+            this.grid.appendChild(div);
+        }
+
+        // Adiciona dias vazios do fim
+        const diasRestantes = 42 - (this.grid.children.length);
         for (let i = 0; i < diasRestantes; i++) {
-            html += '<div class="calendario-dia vazio"></div>';
+            const div = document.createElement('div');
+            div.className = 'calendario-dia vazio';
+            this.grid.appendChild(div);
         }
-        
-        this.gridContainer.innerHTML = html;
-    }
-
-    atualizarSelecao() {
-        this.container.querySelectorAll('.calendario-dia').forEach(dia => {
-            dia.classList.toggle('selecionado', dia.dataset.data === this.diaSelecionado);
-        });
-    }
-
-    formatarMesAno(data) {
-        return data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-    }
-
-    formatarData(data) {
-        return data.toISOString().split('T')[0];
-    }
-
-    mesmosDias(data1, data2) {
-        return data1.getDate() === data2.getDate() &&
-               data1.getMonth() === data2.getMonth() &&
-               data1.getFullYear() === data2.getFullYear();
     }
 } 

@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase.js';
+import { supabase } from './supabase.js';
 
 export class Storage {
     constructor() {
@@ -134,40 +134,24 @@ export class Storage {
     }
 
     // Métodos de Agendamentos
-    async buscarAgendamentos() {
+    async buscarAgendamentos(data = null) {
         try {
-            const { data, error } = await supabase
+            let query = supabase
                 .from('agendamentos')
-                .select(`
-                    *,
-                    veiculo:veiculos(modelo, placa),
-                    motorista:motoristas(nome)
-                `)
-                .order('data')
-                .order('horario_said');
+                .select('*')
+                .order('horarioSaida');
+
+            if (data) {
+                const dataFormatada = data instanceof Date 
+                    ? data.toISOString().split('T')[0]
+                    : data;
+                query = query.eq('data', dataFormatada);
+            }
+
+            const { data: agendamentos, error } = await query;
 
             if (error) throw error;
-            this.agendamentos = data;
-            return data;
-        } catch (error) {
-            console.error('Erro ao buscar agendamentos:', error);
-            throw new Error('Não foi possível carregar os agendamentos');
-        }
-    }
-
-    async buscarAgendamentosPorData(data) {
-        try {
-            const { data: agendamentos, error } = await supabase
-                .from('agendamentos')
-                .select(`
-                    *,
-                    veiculo:veiculos(modelo, placa),
-                    motorista:motoristas(nome)
-                `)
-                .eq('data', data)
-                .order('horario_said');
-
-            if (error) throw error;
+            this.agendamentos = agendamentos;
             return agendamentos;
         } catch (error) {
             console.error('Erro ao buscar agendamentos:', error);
@@ -177,9 +161,24 @@ export class Storage {
 
     async salvarAgendamento(dados) {
         try {
+            // Valida os dados
+            if (!dados.data) throw new Error('Data é obrigatória');
+            if (!dados.horarioSaida) throw new Error('Horário de saída é obrigatório');
+            if (!dados.horarioRetorno) throw new Error('Horário de retorno é obrigatório');
+            if (!dados.enderecoSaida) throw new Error('Endereço de saída é obrigatório');
+            if (!dados.enderecoRetorno) throw new Error('Endereço de retorno é obrigatório');
+            if (!dados.veiculo) throw new Error('Veículo é obrigatório');
+            if (!dados.motorista) throw new Error('Motorista é obrigatório');
+            if (!dados.passageiros || !dados.passageiros.length) throw new Error('Pelo menos um passageiro é obrigatório');
+
+            // Formata a data se for um objeto Date
+            if (dados.data instanceof Date) {
+                dados.data = dados.data.toISOString().split('T')[0];
+            }
+
             // Formata os horários para HH:mm
-            dados.horario_said = dados.horario_said.substring(0, 5);
-            dados.horario_retor = dados.horario_retor.substring(0, 5);
+            dados.horarioSaida = dados.horarioSaida.substring(0, 5);
+            dados.horarioRetorno = dados.horarioRetorno.substring(0, 5);
 
             const { data, error } = await supabase
                 .from('agendamentos')
@@ -191,7 +190,7 @@ export class Storage {
             return data;
         } catch (error) {
             console.error('Erro ao salvar agendamento:', error);
-            throw new Error('Não foi possível salvar o agendamento');
+            throw error;
         }
     }
 
@@ -219,5 +218,4 @@ export class Storage {
         const motorista = this.motoristas.find(m => m.id === id);
         return motorista ? motorista.nome : '';
     }
-} 
 } 

@@ -1,4 +1,27 @@
 export class Validator {
+    constructor(rules = {}) {
+        this.rules = rules;
+    }
+
+    validate(field, value) {
+        const rule = this.rules[field];
+        if (!rule) return true;
+
+        if (rule.required && !value) {
+            return { isValid: false, message: rule.message || 'Campo obrigatório' };
+        }
+
+        if (rule.minLength && value.length < rule.minLength) {
+            return { isValid: false, message: rule.message || `Mínimo ${rule.minLength} caracteres` };
+        }
+
+        if (rule.pattern && !new RegExp(rule.pattern).test(value)) {
+            return { isValid: false, message: rule.message || 'Formato inválido' };
+        }
+
+        return { isValid: true };
+    }
+
     static validarAgendamento(agendamento) {
         const { data, horarioSaida, horarioRetorno, enderecoSaida, enderecoRetorno, veiculo, motorista, passageiros } = agendamento;
 
@@ -22,20 +45,18 @@ export class Validator {
             throw new Error('Adicione pelo menos um passageiro');
         }
 
-        if (passageiros.length > 15) { // Definindo um limite máximo razoável
+        if (passageiros.length > 15) {
             throw new Error('Número máximo de passageiros excedido (máximo: 15)');
         }
 
-        if (horarioRetorno <= horarioSaida) {
-            throw new Error('O horário de retorno deve ser maior que o horário de saída');
-        }
+        // Validar horários
+        this.validarHorarios(horarioSaida, horarioRetorno);
 
-        // Validar formato dos dados
-        passageiros.forEach((passageiro, index) => {
-            if (!passageiro.trim()) {
-                throw new Error(`Passageiro ${index + 1} inválido`);
-            }
-        });
+        // Validar endereços
+        this.validarEnderecos(enderecoSaida, enderecoRetorno);
+
+        // Validar passageiros
+        this.validarPassageiros(passageiros);
     }
 
     static validarHorarios(horarioSaida, horarioRetorno) {
@@ -60,6 +81,13 @@ export class Validator {
         }
         if (!this.sanitizarString(enderecoRetorno)) {
             throw new Error('Endereço de retorno é obrigatório');
+        }
+
+        if (this.sanitizarString(enderecoSaida).length < 5) {
+            throw new Error('Endereço de saída deve ter pelo menos 5 caracteres');
+        }
+        if (this.sanitizarString(enderecoRetorno).length < 5) {
+            throw new Error('Endereço de retorno deve ter pelo menos 5 caracteres');
         }
     }
 
@@ -89,8 +117,12 @@ export class Validator {
         }
 
         passageiros.forEach((passageiro, index) => {
-            if (!this.sanitizarString(passageiro)) {
+            const nome = this.sanitizarString(passageiro);
+            if (!nome) {
                 throw new Error(`Passageiro ${index + 1} inválido`);
+            }
+            if (nome.length < 3) {
+                throw new Error(`Nome do passageiro ${index + 1} deve ter pelo menos 3 caracteres`);
             }
         });
     }

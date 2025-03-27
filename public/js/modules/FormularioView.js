@@ -7,6 +7,8 @@ export class FormularioView {
         this.passageirosContainer = document.getElementById('passageiros-container');
         this.btnAdicionarPassageiro = document.getElementById('adicionar-passageiro');
         this.btnSalvar = this.form.querySelector('button[type="submit"]');
+        this.veiculos = [];
+        this.motoristas = [];
 
         this.setupEventListeners();
         this.setupValidation();
@@ -32,12 +34,13 @@ export class FormularioView {
             if (this.form.checkValidity()) {
                 this.iniciarCarregamento();
                 try {
-                    await this.dispatchEvent('formulario:salvo', this.coletarDados());
+                    const dados = this.coletarDados();
+                    await this.dispatchEvent('salvo', dados);
                     this.fechar();
                     this.mostrarToast('Agendamento salvo com sucesso!', 'success');
                 } catch (error) {
                     console.error('Erro ao salvar:', error);
-                    this.mostrarToast('Erro ao salvar o agendamento. Tente novamente.', 'danger');
+                    this.mostrarToast(error.message || 'Erro ao salvar o agendamento', 'danger');
                 } finally {
                     this.finalizarCarregamento();
                 }
@@ -116,10 +119,12 @@ export class FormularioView {
         return div;
     }
 
-    abrir(agendamento = null) {
+    abrir(data = null) {
         this.limparFormulario();
-        if (agendamento) {
-            this.preencherFormulario(agendamento);
+        if (data) {
+            this.form.elements.data.value = data instanceof Date 
+                ? data.toISOString().split('T')[0]
+                : data;
         }
         this.modal.show();
     }
@@ -127,16 +132,16 @@ export class FormularioView {
     fechar() {
         this.modal.hide();
         this.limparFormulario();
-        this.dispatchEvent('formulario:fechado');
+        this.dispatchEvent('fechado');
     }
 
     preencherFormulario(agendamento) {
         const campos = {
             data: 'data',
-            horario_said: 'horarioSaida',
-            horario_retor: 'horarioRetorno',
-            endereco_sa: 'enderecoSaida',
-            endereco_re: 'enderecoRetorno',
+            horarioSaida: 'horarioSaida',
+            horarioRetorno: 'horarioRetorno',
+            enderecoSaida: 'enderecoSaida',
+            enderecoRetorno: 'enderecoRetorno',
             veiculo: 'veiculo',
             motorista: 'motorista'
         };
@@ -177,14 +182,50 @@ export class FormularioView {
         });
     }
 
+    atualizarVeiculos(veiculos) {
+        this.veiculos = veiculos;
+        const select = this.form.elements.veiculo;
+        select.innerHTML = '<option value="">Selecione...</option>';
+        veiculos
+            .filter(v => v.status === 'disponivel')
+            .forEach(veiculo => {
+                const option = document.createElement('option');
+                option.value = veiculo.id;
+                option.textContent = `${veiculo.modelo} (${veiculo.placa})`;
+                select.appendChild(option);
+            });
+    }
+
+    atualizarMotoristas(motoristas) {
+        this.motoristas = motoristas;
+        const select = this.form.elements.motorista;
+        select.innerHTML = '<option value="">Selecione...</option>';
+        motoristas
+            .filter(m => m.status === 'disponivel')
+            .forEach(motorista => {
+                const option = document.createElement('option');
+                option.value = motorista.id;
+                option.textContent = motorista.nome;
+                select.appendChild(option);
+            });
+    }
+
+    getVeiculos() {
+        return this.veiculos;
+    }
+
+    getMotoristas() {
+        return this.motoristas;
+    }
+
     coletarDados() {
         const formData = new FormData(this.form);
         const dados = {
             data: formData.get('data'),
-            horario_said: formData.get('horarioSaida'),
-            horario_retor: formData.get('horarioRetorno'),
-            endereco_sa: formData.get('enderecoSaida'),
-            endereco_re: formData.get('enderecoRetorno'),
+            horarioSaida: formData.get('horarioSaida'),
+            horarioRetorno: formData.get('horarioRetorno'),
+            enderecoSaida: formData.get('enderecoSaida'),
+            enderecoRetorno: formData.get('enderecoRetorno'),
             veiculo: formData.get('veiculo'),
             motorista: formData.get('motorista'),
             passageiros: formData.getAll('passageiros[]').filter(p => p.trim())
@@ -195,11 +236,11 @@ export class FormularioView {
             throw new Error('Data é obrigatória');
         }
 
-        if (!dados.horario_said || !dados.horario_retor) {
+        if (!dados.horarioSaida || !dados.horarioRetorno) {
             throw new Error('Horários são obrigatórios');
         }
 
-        if (!dados.endereco_sa || !dados.endereco_re) {
+        if (!dados.enderecoSaida || !dados.enderecoRetorno) {
             throw new Error('Endereços são obrigatórios');
         }
 
