@@ -24,7 +24,7 @@ export class FormularioView {
         this.form.addEventListener('submit', (e) => {
             e.preventDefault();
             if (this.form.checkValidity()) {
-                this.dispatchEvent('agendamento:salvar', this.coletarDados());
+                this.dispatchEvent('formulario:salvo', this.coletarDados());
                 this.fechar();
             }
             this.form.classList.add('was-validated');
@@ -84,10 +84,10 @@ export class FormularioView {
         const formData = new FormData(this.form);
         return {
             data: formData.get('data'),
-            horarioSaida: formData.get('horarioSaida'),
-            horarioRetorno: formData.get('horarioRetorno'),
-            enderecoSaida: formData.get('enderecoSaida'),
-            enderecoRetorno: formData.get('enderecoRetorno'),
+            horario_said: formData.get('horarioSaida'),
+            horario_retor: formData.get('horarioRetorno'),
+            endereco_sa: formData.get('enderecoSaida'),
+            endereco_re: formData.get('enderecoRetorno'),
             veiculo: formData.get('veiculo'),
             motorista: formData.get('motorista'),
             passageiros: formData.getAll('passageiros[]').filter(p => p.trim())
@@ -95,6 +95,9 @@ export class FormularioView {
     }
 
     dispatchEvent(name, detail) {
-        this.form.dispatchEvent(new CustomEvent(name, { detail }));
+        document.dispatchEvent(new CustomEvent(name, { 
+            bubbles: true,
+            detail 
+        }));
     }
 } 

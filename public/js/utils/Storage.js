@@ -1,10 +1,41 @@
+import { supabase } from './supabase.js';
+
 export class Storage {
-    static getAgendamentos() {
-        return this.carregar('agendamentos') || [];
+    static async getAgendamentos() {
+        try {
+            const { data, error } = await supabase
+                .from('agendamentos')
+                .select('*')
+                .order('data', { ascending: true });
+
+            if (error) {
+                console.error('Erro ao carregar agendamentos:', error);
+                throw error;
+            }
+            return data || [];
+        } catch (erro) {
+            console.error('Erro ao carregar agendamentos:', erro);
+            return [];
+        }
     }
 
-    static salvarAgendamentos(agendamentos) {
-        this.salvar('agendamentos', agendamentos);
+    static async salvarAgendamentos(agendamento) {
+        try {
+            console.log('Enviando agendamento:', agendamento);
+            const { data, error } = await supabase
+                .from('agendamentos')
+                .insert([agendamento])
+                .select();
+
+            if (error) {
+                console.error('Erro ao salvar agendamento:', error);
+                throw error;
+            }
+            return data;
+        } catch (erro) {
+            console.error('Erro ao salvar agendamento:', erro);
+            return null;
+        }
     }
 
     static salvar(chave, dados) {

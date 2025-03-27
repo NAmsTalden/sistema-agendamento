@@ -4,137 +4,132 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SISVEI - Sistema de Agendamento de Veículos Integrado</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="./css/styles.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <header class="bg-primary text-white py-4 mb-4">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-0">SISVEI</h1>
-                    <p class="small mb-0">Sistema de Agendamento de Veículos Integrado</p>
-                    <p class="small mb-0 opacity-75">Núcleo de Apoio Administrativo - SMADS Piracicaba</p>
-                </div>
-                <button class="btn btn-light" id="btn-novo-agendamento">
-                    <i class="bi bi-plus-lg"></i> Novo Agendamento
-                </button>
-            </div>
-        </div>
-    </header>
+    <div class="container py-4">
+        <header class="text-center mb-5">
+            <h1 class="display-4">SISVEI</h1>
+            <p class="lead">Sistema de Agendamento de Veículos Integrado</p>
+            <p class="text-muted">Núcleo de Apoio Administrativo - SMADS Piracicaba</p>
+        </header>
 
-    <main class="container">
-        <div class="row g-4">
-            <!-- Calendário -->
-            <div class="col-lg-7">
-                <div class="calendario-cabecalho">
-                    <button class="btn btn-outline-primary" id="btn-mes-anterior">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <button id="btn-mes-anterior" class="btn btn-outline-primary">
                         <i class="bi bi-chevron-left"></i>
                     </button>
-                    <h2 class="h4 mb-0" id="mes-atual"></h2>
-                    <button class="btn btn-outline-primary" id="btn-mes-proximo">
+                    <h2 id="mes-atual" class="h4 mb-0"></h2>
+                    <button id="btn-mes-proximo" class="btn btn-outline-primary">
                         <i class="bi bi-chevron-right"></i>
                     </button>
                 </div>
-                <div class="calendario-grid" id="calendario-grid">
-                    <!-- Dias da semana -->
-                    <div class="calendario-header">Dom</div>
-                    <div class="calendario-header">Seg</div>
-                    <div class="calendario-header">Ter</div>
-                    <div class="calendario-header">Qua</div>
-                    <div class="calendario-header">Qui</div>
-                    <div class="calendario-header">Sex</div>
-                    <div class="calendario-header">Sáb</div>
-                    <!-- Os dias serão inseridos aqui pelo JavaScript -->
+
+                <div class="calendario mb-4">
+                    <div class="calendario-header">
+                        <div>Dom</div>
+                        <div>Seg</div>
+                        <div>Ter</div>
+                        <div>Qua</div>
+                        <div>Qui</div>
+                        <div>Sex</div>
+                        <div>Sáb</div>
+                    </div>
+                    <div id="calendario-grid" class="calendario-grid"></div>
+                </div>
+
+                <div class="text-end">
+                    <button id="btn-novo-agendamento" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i>
+                        Novo Agendamento
+                    </button>
                 </div>
             </div>
 
-            <!-- Detalhes do dia -->
-            <div class="col-lg-5">
-                <div class="card">
-                    <div class="card-body" id="detalhes-dia">
-                        <p class="text-muted text-center">Selecione um dia para ver os agendamentos.</p>
-                    </div>
+            <div class="col-md-4">
+                <div id="detalhes-dia" class="mt-4 mt-md-0">
+                    <p class="text-muted text-center">Selecione um dia para ver os agendamentos.</p>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
     <!-- Modal de Formulário -->
     <div class="modal fade" id="modal-formulario" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Novo Agendamento</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="form-agendamento">
-                        <div class="row g-3">
-                            <!-- Data -->
-                            <div class="col-md-4">
-                                <label class="form-label">Data</label>
-                                <input type="date" class="form-control" name="data" required>
-                            </div>
-                            
-                            <!-- Horários -->
-                            <div class="col-md-4">
+                    <form id="form-agendamento" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label">Data</label>
+                            <input type="date" class="form-control" name="data" required>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col">
                                 <label class="form-label">Horário de Saída</label>
                                 <input type="time" class="form-control" name="horarioSaida" required>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col">
                                 <label class="form-label">Horário de Retorno</label>
                                 <input type="time" class="form-control" name="horarioRetorno" required>
                             </div>
+                        </div>
 
-                            <!-- Endereços -->
-                            <div class="col-md-6">
-                                <label class="form-label">Endereço de Saída</label>
-                                <input type="text" class="form-control" name="enderecoSaida" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Endereço de Retorno</label>
-                                <input type="text" class="form-control" name="enderecoRetorno" required>
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Endereço de Saída</label>
+                            <input type="text" class="form-control" name="enderecoSaida" required>
+                        </div>
 
-                            <!-- Veículo e Motorista -->
-                            <div class="col-md-6">
-                                <label class="form-label">Veículo</label>
-                                <input type="text" class="form-control" name="veiculo" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Motorista</label>
-                                <input type="text" class="form-control" name="motorista" required>
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Endereço de Retorno</label>
+                            <input type="text" class="form-control" name="enderecoRetorno" required>
+                        </div>
 
-                            <!-- Passageiros -->
-                            <div class="col-12">
-                                <label class="form-label">Passageiros</label>
-                                <div id="passageiros-container">
-                                    <div class="input-group mb-2">
-                                        <input type="text" class="form-control" name="passageiros[]" required>
-                                        <button type="button" class="btn btn-outline-danger remover-passageiro">
-                                            <i class="bi bi-dash-lg"></i>
-                                        </button>
-                                    </div>
+                        <div class="mb-3">
+                            <label class="form-label">Veículo</label>
+                            <input type="text" class="form-control" name="veiculo" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Motorista</label>
+                            <input type="text" class="form-control" name="motorista" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Passageiros</label>
+                            <div id="passageiros-container">
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" name="passageiros[]" required>
+                                    <button type="button" class="btn btn-outline-danger remover-passageiro">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
                                 </div>
-                                <button type="button" class="btn btn-outline-primary btn-sm" id="adicionar-passageiro">
-                                    <i class="bi bi-plus-lg"></i> Adicionar Passageiro
-                                </button>
                             </div>
+                            <button type="button" id="adicionar-passageiro" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-plus-lg"></i>
+                                Adicionar Passageiro
+                            </button>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary" form="form-agendamento">Salvar</button>
+                    <button type="submit" form="form-agendamento" class="btn btn-primary">Salvar</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="./js/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/app.js" type="module"></script>
 </body>
 </html> 

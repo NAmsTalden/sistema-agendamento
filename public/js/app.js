@@ -8,17 +8,22 @@ class App {
         this.state = {
             dataAtual: new Date(),
             diaSelecionado: null,
-            agendamentos: Storage.getAgendamentos()
+            agendamentos: []
         };
 
         // Inicializa as views
         this.calendarioView = new CalendarioView('calendario-grid');
-        this.formularioView = new FormularioView('modal-formulario');
+        this.formularioView = new FormularioView();
 
         // Configura os event listeners
         this.setupEventListeners();
 
-        // Atualiza a visualização inicial
+        // Carrega os agendamentos e atualiza a visualização
+        this.carregarAgendamentos();
+    }
+
+    async carregarAgendamentos() {
+        this.state.agendamentos = await Storage.getAgendamentos();
         this.atualizarVisualizacao();
     }
 
@@ -36,17 +41,16 @@ class App {
             this.atualizarVisualizacao();
         });
 
-        document.addEventListener('formulario:salvo', (event) => {
+        document.addEventListener('formulario:salvo', async (event) => {
             const agendamento = event.detail;
             
-            // Adiciona o agendamento ao estado
-            this.state.agendamentos.push(agendamento);
+            // Salva o agendamento
+            const resultado = await Storage.salvarAgendamentos(agendamento);
             
-            // Salva no storage
-            Storage.salvarAgendamentos(this.state.agendamentos);
-            
-            // Atualiza a visualização
-            this.atualizarVisualizacao();
+            if (resultado) {
+                // Recarrega os agendamentos para atualizar a visualização
+                await this.carregarAgendamentos();
+            }
         });
 
         // Event listener para seleção de dia
@@ -99,7 +103,7 @@ class App {
         }
 
         // Ordena os agendamentos por horário de saída
-        agendamentosDoDia.sort((a, b) => a.horarioSaida.localeCompare(b.horarioSaida));
+        agendamentosDoDia.sort((a, b) => a.horario_said.localeCompare(b.horario_said));
 
         // Cria o HTML para cada agendamento
         const agendamentosHTML = agendamentosDoDia.map(agendamento => `
@@ -108,18 +112,18 @@ class App {
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h4 class="h6 mb-0">
                             <i class="bi bi-clock me-1"></i>
-                            ${agendamento.horarioSaida} - ${agendamento.horarioRetorno}
+                            ${agendamento.horario_said} - ${agendamento.horario_retor}
                         </h4>
                         <span class="badge bg-primary">${agendamento.veiculo}</span>
                     </div>
                     <div class="mb-2">
                         <div class="small text-muted">
                             <i class="bi bi-geo-alt me-1"></i>
-                            Saída: ${agendamento.enderecoSaida}
+                            Saída: ${agendamento.endereco_sa}
                         </div>
                         <div class="small text-muted">
                             <i class="bi bi-geo-alt-fill me-1"></i>
-                            Retorno: ${agendamento.enderecoRetorno}
+                            Retorno: ${agendamento.endereco_re}
                         </div>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
