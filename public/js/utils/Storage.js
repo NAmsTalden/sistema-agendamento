@@ -1,4 +1,12 @@
 export class Storage {
+    static getAgendamentos() {
+        return this.carregar('agendamentos') || [];
+    }
+
+    static salvarAgendamentos(agendamentos) {
+        this.salvar('agendamentos', agendamentos);
+    }
+
     static salvar(chave, dados) {
         try {
             localStorage.setItem(chave, JSON.stringify(dados));
