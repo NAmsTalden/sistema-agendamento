@@ -70,6 +70,14 @@ body {
     box-shadow: var(--shadow-md);
 }
 
+.calendario-header {
+    text-align: center;
+    font-weight: bold;
+    color: var(--gray-600);
+    padding: var(--spacing-sm);
+    border-bottom: 2px solid var(--gray-200);
+}
+
 .calendario-cabecalho {
     display: flex;
     justify-content: space-between;
@@ -94,6 +102,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
+    min-height: 80px;
 }
 
 .calendario-dia:hover {
@@ -109,6 +118,12 @@ body {
 .calendario-dia.selecionado {
     background-color: var(--primary-light);
     border-color: var(--primary);
+}
+
+.calendario-dia.vazio {
+    background-color: var(--gray-100);
+    border: none;
+    cursor: default;
 }
 
 .calendario-dia .numero {
@@ -138,6 +153,7 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-top: auto;
 }
 
 .calendario-dia .indicador-agendamento {
@@ -146,7 +162,7 @@ body {
     background-color: var(--primary-light);
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: var(--border-radius-sm);
-    margin-top: auto;
+    margin-top: var(--spacing-xs);
 }
 
 /* Agendamentos */
@@ -158,7 +174,6 @@ body {
     box-shadow: var(--shadow-sm);
     border: var(--border-width) solid var(--gray-200);
     transition: all var(--transition-normal);
-    animation: slideIn var(--transition-normal);
 }
 
 .agendamento-card:hover {
@@ -195,7 +210,6 @@ body {
     box-shadow: var(--shadow-lg);
     max-width: 800px;
     margin: 0 auto;
-    animation: fadeIn var(--transition-normal);
 }
 
 .form-group {
@@ -282,7 +296,7 @@ body {
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(-10px);
     }
     to {
         opacity: 1;
@@ -309,13 +323,8 @@ body {
 
 /* Responsividade */
 @media (max-width: 768px) {
-    .calendario-grid {
-        gap: var(--spacing-xs);
-        padding: var(--spacing-sm);
-    }
-
     .calendario-dia {
-        padding: var(--spacing-xs);
+        min-height: 60px;
     }
 
     .calendario-dia .resumo-agendamento {
