@@ -23,7 +23,9 @@ class App {
     }
 
     async carregarAgendamentos() {
+        console.log('Carregando agendamentos...');
         this.state.agendamentos = await Storage.getAgendamentos();
+        console.log('Agendamentos carregados:', this.state.agendamentos);
         this.atualizarVisualizacao();
     }
 
@@ -43,11 +45,13 @@ class App {
 
         document.addEventListener('formulario:salvo', async (event) => {
             const agendamento = event.detail;
+            console.log('Recebido evento formulario:salvo com dados:', agendamento);
             
             // Salva o agendamento
-            const resultado = await Storage.salvarAgendamentos(agendamento);
+            const resultado = await Storage.salvarAgendamento(agendamento);
             
             if (resultado) {
+                console.log('Agendamento salvo com sucesso, recarregando dados...');
                 // Recarrega os agendamentos para atualizar a visualização
                 await this.carregarAgendamentos();
             }
