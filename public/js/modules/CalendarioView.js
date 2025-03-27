@@ -9,26 +9,28 @@ export class CalendarioView {
 
     criarEstrutura() {
         this.container.innerHTML = `
-            <div class="calendario-nav">
-                <button class="btn-mes-anterior">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
-                <h2></h2>
-                <button class="btn-mes-proximo">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-            </div>
-            <div class="calendario">
-                <div class="calendario-header">
-                    <div>Dom</div>
-                    <div>Seg</div>
-                    <div>Ter</div>
-                    <div>Qua</div>
-                    <div>Qui</div>
-                    <div>Sex</div>
-                    <div>Sáb</div>
+            <div class="calendario-wrapper">
+                <div class="calendario-nav">
+                    <button class="btn-mes-anterior">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <h2></h2>
+                    <button class="btn-mes-proximo">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
                 </div>
-                <div class="calendario-grid"></div>
+                <div class="calendario">
+                    <div class="calendario-header">
+                        <div>Dom</div>
+                        <div>Seg</div>
+                        <div>Ter</div>
+                        <div>Qua</div>
+                        <div>Qui</div>
+                        <div>Sex</div>
+                        <div>Sáb</div>
+                    </div>
+                    <div class="calendario-grid"></div>
+                </div>
             </div>
         `;
 
@@ -38,6 +40,7 @@ export class CalendarioView {
         this.gridContainer = this.container.querySelector('.calendario-grid');
 
         this.setupEventListeners();
+        this.renderizar(this.dataAtual, [], null); // Renderiza o estado inicial
     }
 
     setupEventListeners() {
@@ -94,13 +97,19 @@ export class CalendarioView {
             ].filter(Boolean).join(' ');
             
             html += `
-                <div class="${classes} fade-in" data-data="${dataFormatada}">
+                <div class="${classes}" data-data="${dataFormatada}">
                     <span class="numero-dia">${dia}</span>
                     ${agendamentosNoDia.length > 0 ? `
                         <span class="badge">${agendamentosNoDia.length}</span>
                     ` : ''}
                 </div>
             `;
+        }
+
+        // Preenche os dias vazios do final do mês
+        const diasRestantes = 42 - (primeiroDiaDoMes.getDay() + ultimoDiaDoMes.getDate()); // 42 = 6 semanas * 7 dias
+        for (let i = 0; i < diasRestantes; i++) {
+            html += '<div class="calendario-dia vazio"></div>';
         }
         
         this.gridContainer.innerHTML = html;

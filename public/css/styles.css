@@ -92,11 +92,15 @@ header p.text-muted {
 }
 
 /* Calendário */
-.calendario {
+.calendario-wrapper {
     background: white;
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-md);
     overflow: hidden;
+}
+
+.calendario {
+    width: 100%;
 }
 
 .calendario-header {
@@ -105,11 +109,11 @@ header p.text-muted {
     background-color: var(--primary);
     color: white;
     font-weight: 600;
+    text-align: center;
 }
 
 .calendario-header div {
     padding: 1rem;
-    text-align: center;
     font-size: 0.875rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -118,24 +122,26 @@ header p.text-muted {
 .calendario-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    border: 1px solid var(--gray-200);
     background-color: white;
+    gap: 1px;
+    background-color: var(--gray-200);
+    padding: 1px;
 }
 
 .calendario-dia {
     aspect-ratio: 1;
+    background-color: white;
     padding: 0.75rem;
-    border: 1px solid var(--gray-200);
     cursor: pointer;
     position: relative;
     display: flex;
     flex-direction: column;
     transition: all 0.2s ease;
+    min-height: 80px;
 }
 
 .calendario-dia:hover {
     background-color: var(--primary-light);
-    border-color: var(--primary);
     z-index: 1;
 }
 
@@ -146,13 +152,23 @@ header p.text-muted {
 
 .calendario-dia.hoje {
     background-color: var(--primary-light);
-    border: 2px solid var(--primary);
-    font-weight: 600;
+    position: relative;
+}
+
+.calendario-dia.hoje::after {
+    content: '';
+    position: absolute;
+    bottom: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: var(--primary);
+    border-radius: 50%;
 }
 
 .calendario-dia.selecionado {
     background-color: var(--primary);
-    border-color: var(--primary);
     color: white;
 }
 
@@ -162,6 +178,10 @@ header p.text-muted {
 
 .calendario-dia.tem-agendamento {
     background-color: #fff8e6;
+}
+
+.calendario-dia.tem-agendamento:hover {
+    background-color: #fff0cc;
 }
 
 .numero-dia {
@@ -193,11 +213,9 @@ header p.text-muted {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1.5rem;
-    padding: 0.5rem;
+    padding: 1rem;
     background-color: white;
-    border-radius: var(--border-radius-md);
-    box-shadow: var(--shadow-sm);
+    border-bottom: 1px solid var(--gray-200);
 }
 
 .calendario-nav h2 {
@@ -209,14 +227,18 @@ header p.text-muted {
 }
 
 .calendario-nav button {
-    padding: 0.5rem 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
     border: none;
     background-color: transparent;
     color: var(--primary);
     font-size: 1.25rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    border-radius: var(--border-radius-md);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .calendario-nav button:hover {
