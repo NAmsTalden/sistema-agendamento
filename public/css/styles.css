@@ -90,6 +90,7 @@ body {
 .navbar {
     padding: 0.5rem 1rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
 }
 
 .navbar-brand {
@@ -475,10 +476,11 @@ main {
     }
 
     #calendar {
-        height: 500px;
+        min-height: 500px;
     }
     
-    .fc-toolbar {
+    .fc .fc-toolbar {
+        display: flex;
         flex-direction: column;
         gap: 10px;
     }
@@ -537,25 +539,37 @@ main {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    height: 700px;
-    margin-bottom: 20px;
+    min-height: 700px;
 }
 
 .fc {
     height: 100%;
-    width: 100%;
 }
 
-.fc-toolbar-title {
-    font-size: 1.5em !important;
-    font-weight: 500 !important;
+.fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 1.5em;
 }
 
-.fc-event {
-    cursor: pointer;
-    padding: 2px 4px;
+.fc-theme-standard td {
+    border: 1px solid #ddd;
 }
 
-.fc-daygrid-day:hover {
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border: none;
+    padding: 10px 20px;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+}
+
+.alert-info {
     background-color: #f8f9fa;
+    border-color: #e9ecef;
+    color: #6c757d;
 } 
