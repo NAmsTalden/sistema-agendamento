@@ -473,6 +473,15 @@ main {
     .table {
         border-radius: 0;
     }
+
+    #calendar {
+        height: 500px;
+    }
+    
+    .fc-toolbar {
+        flex-direction: column;
+        gap: 10px;
+    }
 }
 
 /* Animações */
@@ -528,4 +537,25 @@ main {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    height: 700px;
+    margin-bottom: 20px;
+}
+
+.fc {
+    height: 100%;
+    width: 100%;
+}
+
+.fc-toolbar-title {
+    font-size: 1.5em !important;
+    font-weight: 500 !important;
+}
+
+.fc-event {
+    cursor: pointer;
+    padding: 2px 4px;
+}
+
+.fc-daygrid-day:hover {
+    background-color: #f8f9fa;
 } 

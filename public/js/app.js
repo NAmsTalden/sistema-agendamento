@@ -233,14 +233,51 @@ document.addEventListener('DOMContentLoaded', function() {
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
+        buttonText: {
+            today: 'Hoje',
+            month: 'Mês',
+            week: 'Semana',
+            day: 'Dia'
+        },
+        slotMinTime: '07:00:00',
+        slotMaxTime: '20:00:00',
+        expandRows: true,
+        height: '100%',
         events: carregarAgendamentos,
         eventClick: function(info) {
             mostrarDetalhesAgendamento(info.event);
+        },
+        dateClick: function(info) {
+            // Abrir modal de novo agendamento com a data selecionada
+            const modal = new bootstrap.Modal(document.getElementById('agendamentoModal'));
+            document.getElementById('horarioSaida').value = info.dateStr + 'T08:00';
+            document.getElementById('horarioRetorno').value = info.dateStr + 'T17:00';
+            modal.show();
+        },
+        eventDidMount: function(info) {
+            // Adicionar tooltip aos eventos
+            $(info.el).tooltip({
+                title: `${info.event.title}\nSaída: ${formatarData(info.event.start)}\nRetorno: ${formatarData(info.event.end)}`,
+                placement: 'top',
+                trigger: 'hover'
+            });
         }
     });
+    
     calendar.render();
     carregarVeiculos();
+
+    // Variável global para referência
+    window.calendar = calendar;
 });
+
+// Função auxiliar para formatar datas
+function formatarData(data) {
+    return new Intl.DateTimeFormat('pt-BR', {
+        dateStyle: 'short',
+        timeStyle: 'short'
+    }).format(data);
+}
 
 // Carregar veículos no select
 async function carregarVeiculos() {
