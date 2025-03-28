@@ -539,15 +539,21 @@ main {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
     min-height: 700px;
 }
 
 .fc {
-    height: 100%;
+    background-color: white;
 }
 
 .fc .fc-toolbar.fc-header-toolbar {
     margin-bottom: 1.5em;
+    padding: 1em;
+}
+
+.fc .fc-toolbar-title {
+    font-size: 1.5em;
 }
 
 .fc-theme-standard td {
