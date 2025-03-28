@@ -4,6 +4,8 @@ import { FormularioView } from './modules/FormularioView.js';
 import { VeiculosView } from './modules/VeiculosView.js';
 import { MotoristasView } from './modules/MotoristasView.js';
 import { Storage } from './modules/Storage.js';
+import { createClient } from '@supabase/supabase-js';
+import FullCalendar from '@fullcalendar/core';
 
 class App {
     constructor() {
@@ -215,4 +217,129 @@ class App {
 // Inicializa o app quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new App();
-}); 
+});
+
+// Inicialização do Supabase
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Inicialização do Calendário
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'pt-br',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: carregarAgendamentos,
+        eventClick: function(info) {
+            mostrarDetalhesAgendamento(info.event);
+        }
+    });
+    calendar.render();
+    carregarVeiculos();
+});
+
+// Carregar veículos no select
+async function carregarVeiculos() {
+    const { data, error } = await supabase
+        .from('veiculos')
+        .select('*')
+        .order('modelo');
+    
+    if (error) {
+        console.error('Erro ao carregar veículos:', error);
+        return;
+    }
+
+    const select = document.getElementById('veiculo');
+    select.innerHTML = '<option value="">Selecione um veículo</option>';
+    
+    data.forEach(veiculo => {
+        const option = document.createElement('option');
+        option.value = veiculo.id;
+        option.textContent = `${veiculo.modelo} (${veiculo.placa})`;
+        select.appendChild(option);
+    });
+}
+
+// Carregar agendamentos do Supabase
+async function carregarAgendamentos() {
+    const { data, error } = await supabase
+        .from('agendamentos')
+        .select(`
+            *,
+            veiculos (
+                modelo,
+                placa
+            )
+        `);
+    
+    if (error) {
+        console.error('Erro ao carregar agendamentos:', error);
+        return [];
+    }
+
+    return data.map(agendamento => ({
+        id: agendamento.id,
+        title: `${agendamento.veiculos.modelo} - ${agendamento.motorista}`,
+        start: agendamento.horario_saida,
+        end: agendamento.horario_retorno,
+        extendedProps: agendamento
+    }));
+}
+
+// Salvar novo agendamento
+document.getElementById('salvarAgendamento').addEventListener('click', async () => {
+    const formData = {
+        horario_saida: document.getElementById('horarioSaida').value,
+        horario_retorno: document.getElementById('horarioRetorno').value,
+        endereco_saida: document.getElementById('enderecoSaida').value,
+        endereco_retorno: document.getElementById('enderecoRetorno').value,
+        veiculo: document.getElementById('veiculo').value,
+        motorista: document.getElementById('motorista').value,
+        passageiros: document.getElementById('passageiros').value,
+        justificativa: document.getElementById('justificativa').value,
+        observacoes: document.getElementById('observacoes').value
+    };
+
+    const { data, error } = await supabase
+        .from('agendamentos')
+        .insert([formData]);
+
+    if (error) {
+        alert('Erro ao salvar agendamento');
+        console.error(error);
+    } else {
+        alert('Agendamento salvo com sucesso!');
+        document.getElementById('agendamentoForm').reset();
+        bootstrap.Modal.getInstance(document.getElementById('agendamentoModal')).hide();
+        calendar.refetchEvents();
+    }
+});
+
+// Função para mostrar detalhes do agendamento
+function mostrarDetalhesAgendamento(event) {
+    const agendamento = event.extendedProps;
+    if (confirm(`Deseja excluir o agendamento de ${agendamento.motorista}?`)) {
+        excluirAgendamento(agendamento.id);
+    }
+}
+
+// Função para excluir agendamento
+async function excluirAgendamento(id) {
+    const { error } = await supabase
+        .from('agendamentos')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        alert('Erro ao excluir agendamento');
+        console.error(error);
+    } else {
+        alert('Agendamento excluído com sucesso!');
+        calendar.refetchEvents();
+    }
+} 
